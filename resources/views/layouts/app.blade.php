@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <title>Mini Shop Management</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
 <body class="bg-gray-100">
@@ -28,7 +33,8 @@
                 </li>
                 <li><a href="{{ route('expenses.index') }}" class="block p-2 hover:bg-gray-700 rounded">Expenses</a>
                 </li>
-                <li><a href="{{ route('financial.report') }}" class="block p-2 hover:bg-gray-700 rounded">Financial Report</a>
+                <li><a href="{{ route('financial.report') }}" class="block p-2 hover:bg-gray-700 rounded">Financial
+                        Report</a>
                 </li>
             </ul>
 
