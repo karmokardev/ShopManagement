@@ -26,6 +26,10 @@
                 </li>
                 <li><a href="{{ route('suppliers.index') }}" class="block p-2 hover:bg-gray-700 rounded">Suppliers</a>
                 </li>
+                <li><a href="{{ route('expenses.index') }}" class="block p-2 hover:bg-gray-700 rounded">Expenses</a>
+                </li>
+                <li><a href="{{ route('financial.report') }}" class="block p-2 hover:bg-gray-700 rounded">Financial Report</a>
+                </li>
             </ul>
 
             <form method="POST" action="{{ route('logout') }}" class="mt-10">

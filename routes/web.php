@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
@@ -44,6 +45,19 @@ Route::middleware('auth')->group(function () {
             'update'
         ]
     );
+
+
+    // Expense Routes
+    Route::resource('expenses', ExpenseController::class)->except(
+        [
+            'show',
+            'edit',
+            'update'
+        ]
+    );
+    Route::get('financial-report', [ExpenseController::class, 'report'])->name('financial.report');
+
+    
 });
 
 require __DIR__ . '/auth.php';
