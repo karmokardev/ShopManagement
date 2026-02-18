@@ -15,7 +15,7 @@
 
         <ul class="space-y-3">
             <li><a href="{{ route('dashboard') }}" class="block p-2 hover:bg-gray-700 rounded">Dashboard</a></li>
-            <li><a href="#" class="block p-2 hover:bg-gray-700 rounded">Products</a></li>
+            <li><a href="{{ route('products.index') }}" class="block p-2 hover:bg-gray-700 rounded">Products</a></li>
             <li><a href="#" class="block p-2 hover:bg-gray-700 rounded">Sales</a></li>
             <li><a href="#" class="block p-2 hover:bg-gray-700 rounded">Purchases</a></li>
             <li><a href="#" class="block p-2 hover:bg-gray-700 rounded">Customers</a></li>

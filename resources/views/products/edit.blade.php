@@ -1,0 +1,42 @@
+@extends('layouts.app')
+
+@section('content')
+
+<h1 class="text-2xl font-bold mb-6">Edit Product</h1>
+
+<form method="POST" action="{{ route('products.update', $product) }}" class="bg-white p-6 rounded shadow w-1/2">
+    @csrf
+    @method('PUT')
+
+    <div class="mb-4">
+        <label>Name</label>
+        <input type="text" name="name" value="{{ $product->name }}" class="w-full border p-2 rounded">
+    </div>
+
+    <div class="mb-4">
+        <label>Category</label>
+        <input type="text" name="category" value="{{ $product->category }}" class="w-full border p-2 rounded">
+    </div>
+
+    <div class="mb-4">
+        <label>Buying Price</label>
+        <input type="number" step="0.01" name="buying_price" value="{{ $product->buying_price }}" class="w-full border p-2 rounded">
+    </div>
+
+    <div class="mb-4">
+        <label>Selling Price</label>
+        <input type="number" step="0.01" name="selling_price" value="{{ $product->selling_price }}" class="w-full border p-2 rounded">
+    </div>
+
+    <div class="mb-4">
+        <label>Stock Quantity</label>
+        <input type="number" name="stock_quantity" value="{{ $product->stock_quantity }}" class="w-full border p-2 rounded">
+    </div>
+
+    <button class="bg-green-600 text-white px-4 py-2 rounded">
+        Update Product
+    </button>
+
+</form>
+
+@endsection
