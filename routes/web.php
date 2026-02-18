@@ -3,6 +3,7 @@
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', SupplierController::class);
     // Customer Routes
     Route::resource('customers', CustomerController::class);
+    // Purchase Routes
+    Route::resource('purchases', PurchaseController::class)->except(
+        [
+            'show',
+            'edit',
+            'update'
+        ]
+    );
 });
 
 require __DIR__ . '/auth.php';
