@@ -36,6 +36,12 @@
                 <li><a href="{{ route('financial.report') }}" class="block p-2 hover:bg-gray-700 rounded">Financial
                         Report</a>
                 </li>
+                <li>
+                    <a href="{{ route('ai.dashboard') }}" class="block p-2 hover:bg-gray-700 rounded">
+                        AI Dashboard
+                    </a>
+                </li>
+
             </ul>
 
             <form method="POST" action="{{ route('logout') }}" class="mt-10">

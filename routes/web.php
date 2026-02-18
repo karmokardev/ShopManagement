@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AIController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
@@ -58,6 +59,10 @@ Route::middleware('auth')->group(function () {
     );
     Route::get('financial-report', [ExpenseController::class, 'report'])->name('financial.report');
 
+    // AI Dashboard Route
+    Route::get('/ai-dashboard', [AIController::class, 'index'])
+    ->middleware('auth')
+    ->name('ai.dashboard');
 
 });
 
