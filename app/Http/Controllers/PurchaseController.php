@@ -59,8 +59,13 @@ class PurchaseController extends Controller
 
     public function destroy(Purchase $purchase)
     {
-        // Reduce stock if purchase deleted
         $product = $purchase->product;
+
+        if($product->stock_quantity < $purchase->quantity) {
+            return redirect()->route('purchases.index')
+                ->with('error', 'Insufficient stock to delete this purchase');
+        }
+
         $product->stock_quantity -= $purchase->quantity;
         $product->save();
 
