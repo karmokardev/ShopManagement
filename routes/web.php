@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,6 +21,10 @@ Route::middleware('auth')->group(function () {
 
     // Product Routes
     Route::resource('products', ProductController::class);
+    // Supplier Routes
+    Route::resource('suppliers', SupplierController::class);
+    // Customer Routes
+    Route::resource('customers', CustomerController::class);
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
