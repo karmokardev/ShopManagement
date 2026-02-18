@@ -6,6 +6,7 @@ use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Customer;
 use App\Models\SaleItem;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +16,15 @@ class SaleController extends Controller
     {
         $sales = Sale::with('customer')->latest()->paginate(10);
         return view('sales.index', compact('sales'));
+    }
+
+    public function invoice(Sale $sale)
+    {
+        $sale->load('items.product', 'customer');
+
+        $pdf = Pdf::loadView('sales.invoice', compact('sale'));
+
+        return $pdf->download('invoice-' . $sale->id . '.pdf');
     }
 
     public function create()
@@ -46,7 +56,8 @@ class SaleController extends Controller
 
             foreach ($request->products as $productId => $qty) {
 
-                if ($qty <= 0) continue;
+                if ($qty <= 0)
+                    continue;
 
                 $product = Product::find($productId);
 

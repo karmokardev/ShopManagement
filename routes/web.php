@@ -59,11 +59,17 @@ Route::middleware('auth')->group(function () {
     );
     Route::get('financial-report', [ExpenseController::class, 'report'])->name('financial.report');
 
-    // AI Dashboard Route
-    Route::get('/ai-dashboard', [AIController::class, 'index'])
+
+});
+
+// AI Dashboard Route
+Route::get('/ai-dashboard', [AIController::class, 'index'])
     ->middleware('auth')
     ->name('ai.dashboard');
 
-});
+//invoice route
+Route::get('/sales/{sale}/invoice', [SaleController::class, 'invoice'])
+    ->middleware('auth')
+    ->name('sales.invoice');
 
 require __DIR__ . '/auth.php';
