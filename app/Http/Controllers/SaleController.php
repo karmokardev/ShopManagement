@@ -56,10 +56,16 @@ class SaleController extends Controller
 
             foreach ($request->products as $productId => $qty) {
 
+                $qty = (int) $qty;
+
                 if ($qty <= 0)
                     continue;
 
                 $product = Product::find($productId);
+
+                if (!$product) {
+                    throw new \Exception("Invalid product selected.");
+                }
 
                 // 🔥 STOCK VALIDATION
                 if ($qty > $product->stock_quantity) {
@@ -77,10 +83,13 @@ class SaleController extends Controller
                 ]);
 
                 // 🔥 Deduct Stock
-                $product->stock_quantity -= $qty;
-                $product->save();
+                $product->decrement('stock_quantity', $qty);
 
                 $totalAmount += $total;
+            }
+
+            if ($totalAmount <= 0) {
+                throw new \Exception("No products selected.");
             }
 
             $sale->update(['total_amount' => $totalAmount]);
@@ -91,10 +100,14 @@ class SaleController extends Controller
                 ->with('success', 'Sale Completed Successfully');
 
         } catch (\Exception $e) {
+
             DB::rollBack();
-            return redirect()->back()->with('error', $e->getMessage());
+
+            return redirect()->back()
+                ->with('error', $e->getMessage());
         }
     }
+
 
     public function destroy(Sale $sale)
     {
