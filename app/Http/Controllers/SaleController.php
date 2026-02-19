@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Customer;
+use App\Models\Purchase;
 use App\Models\SaleItem;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -20,26 +21,34 @@ class SaleController extends Controller
 
     public function invoice(Sale $sale)
     {
-        $sale->load('items.product', 'customer');
+        $sale->load([
+            'items.product',
+            'items.purchase', // 🔥 lot relation
+            'customer'
+        ]);
 
         $pdf = Pdf::loadView('sales.invoice', compact('sale'));
 
         return $pdf->download('invoice-' . $sale->id . '.pdf');
     }
 
+
     public function create()
     {
-        $products = Product::where('stock_quantity', '>', 0)->get();
+        $lots = Purchase::where('remaining_quantity', '>', 0)
+            ->with('product')
+            ->get();
+
         $customers = Customer::all();
 
-        return view('sales.create', compact('products', 'customers'));
+        return view('sales.create', compact('lots', 'customers'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'date' => 'required|date',
-            'products' => 'required|array'
+            'lots' => 'required|array'
         ]);
 
         DB::beginTransaction();
@@ -54,42 +63,44 @@ class SaleController extends Controller
                 'total_amount' => 0
             ]);
 
-            foreach ($request->products as $productId => $qty) {
+            foreach ($request->lots as $lotId => $qty) {
 
                 $qty = (int) $qty;
-
                 if ($qty <= 0)
                     continue;
 
-                $product = Product::find($productId);
+                $purchase = Purchase::findOrFail($lotId);
 
-                if (!$product) {
-                    throw new \Exception("Invalid product selected.");
+                // 🔥 STOCK CHECK
+                if ($purchase->remaining_quantity <= 0) {
+                    throw new \Exception("Lot #{$lotId} stock is 0.");
                 }
 
-                // 🔥 STOCK VALIDATION
-                if ($qty > $product->stock_quantity) {
-                    throw new \Exception("Not enough stock for {$product->name}");
+                if ($qty > $purchase->remaining_quantity) {
+                    throw new \Exception("Not enough stock in Lot #{$lotId}");
                 }
+
+                $product = $purchase->product;
 
                 $total = $qty * $product->selling_price;
 
                 SaleItem::create([
                     'sale_id' => $sale->id,
-                    'product_id' => $productId,
+                    'product_id' => $product->id,
+                    'purchase_id' => $purchase->id,
                     'quantity' => $qty,
                     'unit_price' => $product->selling_price,
                     'total_price' => $total
                 ]);
 
-                // 🔥 Deduct Stock
-                $product->decrement('stock_quantity', $qty);
+                // Deduct lot stock
+                $purchase->decrement('remaining_quantity', $qty);
 
                 $totalAmount += $total;
             }
 
             if ($totalAmount <= 0) {
-                throw new \Exception("No products selected.");
+                throw new \Exception("No lots selected.");
             }
 
             $sale->update(['total_amount' => $totalAmount]);
@@ -109,21 +120,44 @@ class SaleController extends Controller
     }
 
 
+
+
     public function destroy(Sale $sale)
     {
         DB::beginTransaction();
 
-        foreach ($sale->items as $item) {
-            $product = $item->product;
-            $product->stock_quantity += $item->quantity; // Restore stock
-            $product->save();
+        try {
+
+            // Load items with purchase relation
+            $sale->load('items.purchase');
+
+            foreach ($sale->items as $item) {
+
+                if ($item->purchase) {
+                    // Restore lot stock
+                    $item->purchase->increment('remaining_quantity', $item->quantity);
+                }
+            }
+
+            // Delete sale items first (optional but clean)
+            $sale->items()->delete();
+
+            // Delete sale
+            $sale->delete();
+
+            DB::commit();
+
+            return redirect()->route('sales.index')
+                ->with('success', 'Sale Deleted & Lot Stock Restored Successfully');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return redirect()->back()
+                ->with('error', 'Something went wrong while deleting sale.');
         }
-
-        $sale->delete();
-
-        DB::commit();
-
-        return redirect()->route('sales.index')
-            ->with('success', 'Sale Deleted & Stock Restored');
     }
+
+
 }

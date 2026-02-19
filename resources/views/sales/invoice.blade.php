@@ -5,19 +5,38 @@
     <title>Invoice</title>
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
+        }
+
+        h2 {
+            margin-bottom: 5px;
+        }
+
+        p {
+            margin: 3px 0;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 15px;
         }
 
-        th,
-        td {
+        th, td {
             border: 1px solid #000;
             padding: 8px;
             text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .total {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -32,8 +51,9 @@
         <thead>
             <tr>
                 <th>Product</th>
+                <th>Lot</th>
                 <th>Qty</th>
-                <th>Price</th>
+                <th>Unit Price</th>
                 <th>Total</th>
             </tr>
         </thead>
@@ -41,17 +61,18 @@
             @foreach($sale->items as $item)
                 <tr>
                     <td>{{ $item->product->name }}</td>
+                    <td>Lot #{{ $item->purchase->id ?? '-' }}</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>{{ $item->unit_price }}</td>
-                    <td>{{ $item->total_price }}</td>
+                    <td>{{ number_format($item->unit_price, 2) }}</td>
+                    <td>{{ number_format($item->total_price, 2) }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
-    <h3 style="text-align:right; margin-top:20px;">
-        Total: {{ $sale->total_amount }}
-    </h3>
+    <div class="total">
+        Grand Total: {{ number_format($sale->total_amount, 2) }}
+    </div>
 
 </body>
 

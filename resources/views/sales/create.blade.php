@@ -2,140 +2,168 @@
 
 @section('content')
 
-    <h1 class="text-2xl font-bold mb-6">POS Sales</h1>
+<h1 class="text-2xl font-bold mb-6">POS Sales (Lot Based)</h1>
 
-    <form method="POST" action="{{ route('sales.store') }}">
-        @csrf
+@if(session('error'))
+    <div class="bg-red-200 p-3 mb-4 rounded">
+        {{ session('error') }}
+    </div>
+@endif
 
-        <div class="grid grid-cols-3 gap-6">
+<form method="POST" action="{{ route('sales.store') }}">
+    @csrf
 
-            <!-- LEFT SIDE PRODUCTS -->
-            <div class="col-span-2 bg-white p-4 rounded shadow">
-                <h2 class="text-lg font-bold mb-4">Products</h2>
+    <div class="grid grid-cols-3 gap-6">
 
-                <div class="grid grid-cols-4 gap-3">
-                    @foreach($products as $product)
-                        <button type="button" onclick='addToCart(
-                                    {{ $product->id }},
-                                    @json($product->name),
-                                    {{ $product->selling_price }},
-                                    {{ $product->stock_quantity }}
-                                )' class="bg-gray-100 hover:bg-gray-200 p-3 rounded text-center border">
-                            <p class="font-bold">{{ $product->name }}</p>
-                            <p>{{ $product->selling_price }}</p>
-                            <p class="text-sm text-gray-500">Stock: {{ $product->stock_quantity }}</p>
-                        </button>
-                    @endforeach
-                </div>
+        <!-- LEFT SIDE LOTS -->
+        <div class="col-span-2 bg-white p-4 rounded shadow">
+            <h2 class="text-lg font-bold mb-4">Available Lots</h2>
+
+            <div class="grid grid-cols-3 gap-3">
+
+                @foreach($lots as $lot)
+
+                    <button type="button"
+                        onclick="addToCart(
+                            {{ $lot->id }},
+                            @json($lot->product->name . ' (Lot #' . $lot->id . ')'),
+                            {{ $lot->product->selling_price }},
+                            {{ $lot->remaining_quantity }}
+                        )"
+
+                        @if($lot->remaining_quantity <= 0)
+                            disabled
+                        @endif
+
+                        class="bg-gray-100 hover:bg-gray-200 p-3 rounded text-center border">
+
+                        <p class="font-bold">
+                            {{ $lot->product->name }}
+                        </p>
+
+                        <p>Lot #{{ $lot->id }}</p>
+
+                        <p class="text-sm text-gray-500">
+                            Stock: {{ $lot->remaining_quantity }}
+                        </p>
+                    </button>
+
+                @endforeach
+
             </div>
-
-            <!-- RIGHT SIDE CART -->
-            <div class="bg-white p-4 rounded shadow">
-                <h2 class="text-lg font-bold mb-4">Cart</h2>
-
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Qty</th>
-                            <th>Total</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="cart-body"></tbody>
-                </table>
-
-                <hr class="my-4">
-
-                <h3 class="text-lg font-bold">
-                    Total: <span id="grand-total">0</span>
-                </h3>
-
-                <input type="hidden" name="date" value="{{ date('Y-m-d') }}">
-
-                <button class="bg-green-600 text-white w-full mt-4 py-2 rounded">
-                    Complete Sale
-                </button>
-            </div>
-
         </div>
 
-    </form>
+        <!-- RIGHT SIDE CART -->
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="text-lg font-bold mb-4">Cart</h2>
 
-    <script>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="cart-body"></tbody>
+            </table>
 
-        let cart = {};
+            <hr class="my-4">
 
-        function addToCart(id, name, price, stock) {
+            <h3 class="text-lg font-bold">
+                Total: <span id="grand-total">0</span>
+            </h3>
 
-            if (!cart[id]) {
-                cart[id] = { name: name, price: price, qty: 1, stock: stock };
-            } else {
-                if (cart[id].qty + 1 > stock) {
-                    alert("Not enough stock!");
-                    return;
-                }
-                cart[id].qty++;
-            }
+            <input type="hidden" name="date" value="{{ date('Y-m-d') }}">
 
-            renderCart();
+            <button class="bg-green-600 text-white w-full mt-4 py-2 rounded">
+                Complete Sale
+            </button>
+        </div>
+
+    </div>
+</form>
+
+<script>
+
+let cart = {};
+
+function addToCart(lotId, name, price, stock) {
+
+    if (stock <= 0) {
+        alert("Stock is 0!");
+        return;
+    }
+
+    if (!cart[lotId]) {
+        cart[lotId] = { name: name, price: price, qty: 1, stock: stock };
+    } else {
+        if (cart[lotId].qty + 1 > stock) {
+            alert("Not enough stock!");
+            return;
         }
+        cart[lotId].qty++;
+    }
 
-        function removeItem(id) {
-            delete cart[id];
-            renderCart();
-        }
+    renderCart();
+}
 
-        function renderCart() {
+function removeItem(id) {
+    delete cart[id];
+    renderCart();
+}
 
-            let body = document.getElementById('cart-body');
-            body.innerHTML = "";
+function renderCart() {
 
-            let total = 0;
+    let body = document.getElementById('cart-body');
+    body.innerHTML = "";
 
-            Object.keys(cart).forEach(id => {
+    let total = 0;
 
-                let item = cart[id];
-                let itemTotal = item.qty * item.price;
-                total += itemTotal;
+    Object.keys(cart).forEach(id => {
 
-                body.innerHTML += `
-                            <tr>
-                                <td>${item.name}</td>
-                                <td>
-                                    <input type="number" min="1" max="${item.stock}"
-                                           value="${item.qty}"
-                                           onchange="updateQty(${id}, this.value)"
-                                           class="w-16 border rounded text-center">
-                                </td>
-                                <td>${itemTotal}</td>
-                                <td>
-                                    <button type="button"
-                                            onclick="removeItem(${id})"
-                                            class="text-red-500">X</button>
-                                </td>
-                            </tr>
+        let item = cart[id];
+        let itemTotal = item.qty * item.price;
+        total += itemTotal;
 
-                            <input type="hidden" name="products[${id}]" value="${item.qty}">
-                            `;
-            });
+        body.innerHTML += `
+            <tr>
+                <td>${item.name}</td>
+                <td>
+                    <input type="number" min="1" max="${item.stock}"
+                        value="${item.qty}"
+                        onchange="updateQty(${id}, this.value)"
+                        class="w-16 border rounded text-center">
+                </td>
+                <td>${itemTotal}</td>
+                <td>
+                    <button type="button"
+                        onclick="removeItem(${id})"
+                        class="text-red-500">X</button>
+                </td>
+            </tr>
 
-            document.getElementById('grand-total').innerText = total;
-        }
+            <input type="hidden" name="lots[${id}]" value="${item.qty}">
+        `;
+    });
 
-        function updateQty(id, qty) {
+    document.getElementById('grand-total').innerText = total;
+}
 
-            qty = parseInt(qty);
+function updateQty(id, qty) {
 
-            if (qty > cart[id].stock) {
-                alert("Stock exceeded!");
-                return;
-            }
+    qty = parseInt(qty);
 
-            cart[id].qty = qty;
-            renderCart();
-        }
+    if (qty > cart[id].stock) {
+        alert("Stock exceeded!");
+        return;
+    }
 
-    </script>
+    cart[id].qty = qty;
+    renderCart();
+}
+
+</script>
 
 @endsection

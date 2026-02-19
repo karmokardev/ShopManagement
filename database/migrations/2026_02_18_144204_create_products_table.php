@@ -14,11 +14,10 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('category')->nullable();
-            $table->decimal('buying_price', 10, 2);
-            $table->decimal('selling_price', 10, 2);
-            $table->integer('stock_quantity')->default(0);
+            $table->decimal('selling_price', 10, 2)->nullable();
             $table->timestamps();
         });
+
     }
 
     /**

@@ -38,40 +38,31 @@ class PurchaseController extends Controller
 
         $total = $request->quantity * $request->unit_price;
 
-        $purchase = Purchase::create([
+        Purchase::create([
             'supplier_id' => $request->supplier_id,
             'product_id' => $request->product_id,
             'quantity' => $request->quantity,
+            'remaining_quantity' => $request->quantity, // lot stock
             'unit_price' => $request->unit_price,
             'total_cost' => $total,
             'date' => $request->date
         ]);
 
-        // 🔥 Auto Stock Increase
-        $product = Product::find($request->product_id);
-        $product->stock_quantity += $request->quantity;
-        $product->buying_price = $request->unit_price; // Update latest buying price
-        $product->save();
-
         return redirect()->route('purchases.index')
-            ->with('success', 'Purchase Recorded & Stock Updated');
+            ->with('success', 'New Lot Created Successfully');
     }
+
 
     public function destroy(Purchase $purchase)
     {
-        $product = $purchase->product;
-
-        if($product->stock_quantity < $purchase->quantity) {
-            return redirect()->route('purchases.index')
-                ->with('error', 'Insufficient stock to delete this purchase');
+        if ($purchase->remaining_quantity < $purchase->quantity) {
+            return redirect()->back()
+                ->with('error', 'This lot already has sales. Cannot delete.');
         }
-
-        $product->stock_quantity -= $purchase->quantity;
-        $product->save();
 
         $purchase->delete();
 
         return redirect()->route('purchases.index')
-            ->with('success', 'Purchase Deleted');
+            ->with('success', 'Lot Deleted Successfully');
     }
 }

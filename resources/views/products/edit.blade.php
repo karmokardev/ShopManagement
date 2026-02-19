@@ -10,27 +10,24 @@
 
     <div class="mb-4">
         <label>Name</label>
-        <input type="text" name="name" value="{{ $product->name }}" class="w-full border p-2 rounded">
+        <input type="text" name="name"
+               value="{{ $product->name }}"
+               class="w-full border p-2 rounded">
     </div>
 
     <div class="mb-4">
         <label>Category</label>
-        <input type="text" name="category" value="{{ $product->category }}" class="w-full border p-2 rounded">
-    </div>
-
-    <div class="mb-4">
-        <label>Buying Price</label>
-        <input type="number" step="0.01" name="buying_price" value="{{ $product->buying_price }}" class="w-full border p-2 rounded">
+        <input type="text" name="category"
+               value="{{ $product->category }}"
+               class="w-full border p-2 rounded">
     </div>
 
     <div class="mb-4">
         <label>Selling Price</label>
-        <input type="number" step="0.01" name="selling_price" value="{{ $product->selling_price }}" class="w-full border p-2 rounded">
-    </div>
-
-    <div class="mb-4">
-        <label>Stock Quantity</label>
-        <input type="number" name="stock_quantity" value="{{ $product->stock_quantity }}" class="w-full border p-2 rounded">
+        <input type="number" step="0.01"
+               name="selling_price"
+               value="{{ $product->selling_price }}"
+               class="w-full border p-2 rounded">
     </div>
 
     <button class="bg-green-600 text-white px-4 py-2 rounded">

@@ -11,12 +11,16 @@ class ProductController extends Controller
     {
         $search = $request->search;
 
-        $products = Product::when($search, function ($query) use ($search) {
-            return $query->where('name', 'like', "%$search%");
-        })->latest()->paginate(10);
+        $products = Product::with('purchases') // 🔥 important
+            ->when($search, function ($query) use ($search) {
+                return $query->where('name', 'like', "%$search%");
+            })
+            ->latest()
+            ->paginate(10);
 
         return view('products.index', compact('products'));
     }
+
 
     public function create()
     {
@@ -27,14 +31,21 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'buying_price' => 'required|numeric',
             'selling_price' => 'required|numeric',
-            'stock_quantity' => 'required|integer',
         ]);
 
-        Product::create($request->all());
+        if (Product::count() >= 1) {
+            return redirect()->back()->with('error', 'Only one product allowed.');
+        }
 
-        return redirect()->route('products.index')->with('success', 'Product Added Successfully');
+        Product::create([
+            'name' => $request->name,
+            'category' => $request->category,
+            'selling_price' => $request->selling_price,
+        ]);
+
+        return redirect()->route('products.index')
+            ->with('success', 'Product Added Successfully');
     }
 
     public function edit(Product $product)
