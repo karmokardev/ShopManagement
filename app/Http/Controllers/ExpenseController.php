@@ -7,6 +7,7 @@ use App\Models\Sale;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ExpenseController extends Controller
 {
@@ -25,9 +26,10 @@ class ExpenseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'description' => 'required',
+            'title' => 'required',
             'amount' => 'required|numeric',
-            'date' => 'required|date'
+            'date' => 'required|date',
+            'note' => 'nullable|string',
         ]);
 
         Expense::create($request->all());
@@ -49,25 +51,41 @@ class ExpenseController extends Controller
     {
         $today = Carbon::today();
 
-        $dailySales = Sale::whereDate('date', $today)->sum('total_amount');
-        $dailyPurchases = Purchase::whereDate('date', $today)->sum('total_cost');
-        $dailyExpenses = Expense::whereDate('date', $today)->sum('amount');
+        // ===== DAILY =====
+        $dailySales = Sale::whereDate('sale_date', $today)
+            ->sum('total_price');
 
-        $dailyProfit = $dailySales - $dailyPurchases - $dailyExpenses;
+        $dailyCOGS = Sale::whereDate('sale_date', $today)
+            ->sum(DB::raw('quantity * buying_price'));
 
-        $monthlySales = Sale::whereMonth('date', $today->month)->sum('total_amount');
-        $monthlyPurchases = Purchase::whereMonth('date', $today->month)->sum('total_cost');
-        $monthlyExpenses = Expense::whereMonth('date', $today->month)->sum('amount');
+        $dailyExpenses = Expense::whereDate('date', $today)
+            ->sum('amount');
 
-        $monthlyProfit = $monthlySales - $monthlyPurchases - $monthlyExpenses;
+        $dailyProfit = $dailySales - $dailyCOGS - $dailyExpenses;
+
+
+        // ===== MONTHLY =====
+        $monthlySales = Sale::whereYear('sale_date', $today->year)
+            ->whereMonth('sale_date', $today->month)
+            ->sum('total_price');
+
+        $monthlyCOGS = Sale::whereYear('sale_date', $today->year)
+            ->whereMonth('sale_date', $today->month)
+            ->sum(DB::raw('quantity * buying_price'));
+
+        $monthlyExpenses = Expense::whereYear('date', $today->year)
+            ->whereMonth('date', $today->month)
+            ->sum('amount');
+
+        $monthlyProfit = $monthlySales - $monthlyCOGS - $monthlyExpenses;
 
         return view('expenses.report', compact(
             'dailySales',
-            'dailyPurchases',
+            'dailyCOGS',
             'dailyExpenses',
             'dailyProfit',
             'monthlySales',
-            'monthlyPurchases',
+            'monthlyCOGS',
             'monthlyExpenses',
             'monthlyProfit'
         ));

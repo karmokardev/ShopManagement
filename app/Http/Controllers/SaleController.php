@@ -52,7 +52,6 @@ class SaleController extends Controller
             'purchase_id' => 'required',
             'quantity' => 'required|numeric|min:1',
             'selling_price' => 'required|numeric|min:0',
-            'total_price' => 'required|numeric|min:0',
             'sale_date' => 'required|date',
         ]);
 
@@ -67,6 +66,7 @@ class SaleController extends Controller
             return back()->with('error', 'Stock not available! Available stock: ' . $purchase->quantity);
         }
 
+        $buyingPrice = $purchase->buying_price;
         $totalPrice = $request->quantity * $request->selling_price;
 
         $product = Product::findOrFail($request->product_id);
@@ -84,6 +84,7 @@ class SaleController extends Controller
             'product_id' => $product->id,
             'purchase_id' => $purchase->id,
             'quantity' => $request->quantity,
+            'buying_price' => $buyingPrice,
             'selling_price' => $request->selling_price,
             'total_price' => $totalPrice,
             'sale_date' => $request->sale_date,

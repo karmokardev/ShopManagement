@@ -30,6 +30,7 @@
                     <th class="p-3">Product</th>
                     <th class="p-3">Lot</th>
                     <th class="p-3">Qty</th>
+                    <th class="p-3">Buying Price</th>
                     <th class="p-3">Unit Price</th>
                     <th class="p-3">Total</th>
                     <th class="p-3">Action</th>
@@ -58,6 +59,9 @@
 
                         <td class="p-3">
                             {{ $sale->quantity }}
+                        </td>
+                        <td class="p-3">
+                            {{ number_format($sale->buying_price, 2) }}
                         </td>
 
                         <td class="p-3">

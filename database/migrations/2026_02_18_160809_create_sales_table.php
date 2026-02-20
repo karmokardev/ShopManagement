@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
 
             $table->integer('quantity');
+            $table->decimal('buying_price', 10, 2);
             $table->decimal('selling_price', 10, 2);
             $table->decimal('total_price', 10, 2);
             $table->date('sale_date');

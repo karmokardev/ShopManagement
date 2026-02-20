@@ -42,12 +42,17 @@
         {{-- Purchase Lot --}}
         <div>
             <label class="block mb-1 font-medium">Purchase Lot</label>
-            <select name="purchase_id" class="w-full border rounded p-2" required>
-                <option value="">Select Purchase Lot</option>
+            <select name="purchase_id"
+                    id="purchaseSelect"
+                    class="w-full border rounded p-2"
+                    required>
+                <option value="">Select Lot</option>
                 @foreach($purchases as $purchase)
-                    <option value="{{ $purchase->id }}">
+                    <option value="{{ $purchase->id }}"
+                            data-stock="{{ $purchase->remaining_quantity }}"
+                            {{ old('purchase_id') == $purchase->id ? 'selected' : '' }}>
                         Lot #{{ $purchase->id }}
-                        (Stock: {{ $purchase->quantity }})
+                        (Stock: {{ $purchase->remaining_quantity }})
                     </option>
                 @endforeach
             </select>
@@ -66,19 +71,20 @@
         {{-- Selling Price --}}
         <div>
             <label class="block mb-1 font-medium">Selling Price</label>
-            <input type="number" step="0.01" name="selling_price" class="w-full border rounded p-2" required>
+            <input type="number" step="0.01" name="selling_price" value="{{ old('selling_price') }}" class="w-full border rounded p-2" required>
         </div>
 
         {{-- Total Price --}}
         <div>
             <label class="block mb-1 font-medium">Total Price</label>
-            <input type="number" step="0.01" name="total_price" class="w-full border rounded p-2" required>
+            <input type="number" step="0.01" name="total_price" id="totalPrice" class="w-full border rounded p-2" readonly>
         </div>
 
         {{-- Sale Date --}}
         <div>
             <label class="block mb-1 font-medium">Sale Date</label>
-            <input type="date" name="sale_date" class="w-full border rounded p-2" required>
+            <input type="date" name="sale_date" value="{{ old('sale_date', date('Y-m-d')) }}"
+                class="w-full border rounded p-2" required>
         </div>
 
         <div>
