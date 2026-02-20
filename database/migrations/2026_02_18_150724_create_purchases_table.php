@@ -16,13 +16,12 @@ return new class extends Migration {
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
 
-            $table->integer('quantity');              // total purchased
-            $table->integer('remaining_quantity');    // lot stock
-
-            $table->decimal('unit_price', 10, 2);
-            $table->decimal('total_cost', 10, 2);
-
-            $table->date('date');
+            $table->string('lot_no')->nullable();
+            $table->integer('quantity');
+            $table->decimal('buying_price', 10, 2);
+            $table->decimal('total_price', 10, 2);
+            $table->integer('remaining_quantity');
+            $table->date('purchase_date');
             $table->timestamps();
         });
 

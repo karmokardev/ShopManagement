@@ -12,7 +12,7 @@ class Product extends Model
     protected $fillable = [
         'name',
         'category',
-        'selling_price',
+        'units',
     ];
 
     public function purchases()
@@ -20,9 +20,10 @@ class Product extends Model
         return $this->hasMany(Purchase::class);
     }
 
-    public function saleItems()
+    public function sales()
     {
-        return $this->hasMany(SaleItem::class);
+        return $this->hasMany(Sale::class);
     }
+
 }
 

@@ -5,11 +5,10 @@
     <div class="flex justify-between mb-4">
         <h1 class="text-2xl font-bold">Product</h1>
 
-        @if($products->count() == 0)
-            <a href="{{ route('products.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">
-                + Add Product
-            </a>
-        @endif
+
+        <a href="{{ route('products.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">
+            + Add Product
+        </a>
     </div>
 
     @if(session('success'))

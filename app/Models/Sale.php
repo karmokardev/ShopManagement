@@ -11,19 +11,29 @@ class Sale extends Model
 
     protected $fillable = [
         'customer_id',
-        'date',
-        'total_amount',
+        'product_id',
+        'purchase_id',
+        'quantity',
+        'selling_price',
+        'total_price',
+        'sale_date',
     ];
 
-    protected $dates = ['date'];
+    protected $dates = ['sale_date'];
 
-    public function items()
+    public function product()
     {
-        return $this->hasMany(SaleItem::class);
+        return $this->belongsTo(Product::class);
     }
+
+    public function purchase()
+    {
+        return $this->belongsTo(Purchase::class);
+    }
+    
     public function customer()
     {
-        return $this->belongsTo(\App\Models\Customer::class);
+        return $this->belongsTo(Customer::class);
     }
 }
 

@@ -34,9 +34,7 @@ class ProductController extends Controller
             'selling_price' => 'required|numeric',
         ]);
 
-        if (Product::count() >= 1) {
-            return redirect()->back()->with('error', 'Only one product allowed.');
-        }
+        
 
         Product::create([
             'name' => $request->name,

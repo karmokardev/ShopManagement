@@ -12,34 +12,29 @@ class Purchase extends Model
     protected $fillable = [
         'supplier_id',
         'product_id',
+        'lot_no',
         'quantity',
+        'buying_price',
+        'total_price',
         'remaining_quantity',
-        'unit_price',
-        'total_cost',
-        'date',
+        'purchase_date',
     ];
 
-    protected $dates = ['date'];
+    protected $dates = ['purchase_date'];
 
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
 
+    public function sales()
+    {
+        return $this->hasMany(Sale::class);
+    }
+
     public function supplier()
     {
-        return $this->belongsTo(\App\Models\Supplier::class);
+        return $this->belongsTo(Supplier::class);
     }
 
-
-    public function saleItems()
-    {
-        return $this->hasMany(SaleItem::class);
-    }
-
-    // Optional helper
-    public function isOutOfStock()
-    {
-        return $this->remaining_quantity <= 0;
-    }
 }

@@ -15,9 +15,13 @@ return new class extends Migration {
 
             $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
 
-            $table->date('date');
-            $table->decimal('total_amount', 10, 2)->default(0);
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
 
+            $table->integer('quantity');
+            $table->decimal('selling_price', 10, 2);
+            $table->decimal('total_price', 10, 2);
+            $table->date('sale_date');
             $table->timestamps();
         });
 

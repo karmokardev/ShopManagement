@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('category')->nullable();
-            $table->decimal('selling_price', 10, 2)->nullable();
+            $table->integer('units')->default(0);
             $table->timestamps();
         });
 
