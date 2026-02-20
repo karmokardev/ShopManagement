@@ -26,10 +26,10 @@
     </div>
 
     <div class="mb-4">
-        <label>Selling Price</label>
-        <input type="number" step="0.01" name="selling_price"
+        <label>Units</label>
+        <input type="number" step="1" name="units" placeholder="0"
                class="w-full border p-2 rounded"
-               value="{{ old('selling_price') }}">
+               value="{{ old('units') }}">
     </div>
 
     <button class="bg-blue-600 text-white px-4 py-2 rounded">

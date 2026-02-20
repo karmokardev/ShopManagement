@@ -31,7 +31,8 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'selling_price' => 'required|numeric',
+            'category' => 'required',
+            'unit' => 'required|string|max:255',
         ]);
 
         
@@ -39,7 +40,7 @@ class ProductController extends Controller
         Product::create([
             'name' => $request->name,
             'category' => $request->category,
-            'selling_price' => $request->selling_price,
+            'unit' => $request->unit,
         ]);
 
         return redirect()->route('products.index')

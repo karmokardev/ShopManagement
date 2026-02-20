@@ -15,7 +15,9 @@ class SaleController extends Controller
 {
     public function index()
     {
-        $sales = Sale::with('customer')->latest()->paginate(10);
+        $sales = Sale::with('customer', 'product', 'purchase')
+            ->orderBy('sale_date', 'desc')
+            ->paginate(10);
         return view('sales.index', compact('sales'));
     }
 
@@ -35,128 +37,86 @@ class SaleController extends Controller
 
     public function create()
     {
-        $lots = Purchase::where('remaining_quantity', '>', 0)
-            ->with('product')
-            ->get();
-
         $customers = Customer::all();
+        $products = Product::all();
+        $purchases = Purchase::where('quantity', '>', 0)->get();
 
-        return view('sales.create', compact('lots', 'customers'));
+        return view('sales.create', compact('customers', 'products', 'purchases'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'date' => 'required|date',
-            'lots' => 'required|array'
+            'customer_id' => 'required',
+            'product_id' => 'required',
+            'purchase_id' => 'required',
+            'quantity' => 'required|numeric|min:1',
+            'selling_price' => 'required|numeric|min:0',
+            'total_price' => 'required|numeric|min:0',
+            'sale_date' => 'required|date',
         ]);
 
-        DB::beginTransaction();
+        $purchase = Purchase::findOrFail($request->purchase_id);
 
-        try {
 
-            $totalAmount = 0;
-
-            $sale = Sale::create([
-                'customer_id' => $request->customer_id,
-                'date' => $request->date,
-                'total_amount' => 0
-            ]);
-
-            foreach ($request->lots as $lotId => $qty) {
-
-                $qty = (int) $qty;
-                if ($qty <= 0)
-                    continue;
-
-                $purchase = Purchase::findOrFail($lotId);
-
-                // 🔥 STOCK CHECK
-                if ($purchase->remaining_quantity <= 0) {
-                    throw new \Exception("Lot #{$lotId} stock is 0.");
-                }
-
-                if ($qty > $purchase->remaining_quantity) {
-                    throw new \Exception("Not enough stock in Lot #{$lotId}");
-                }
-
-                $product = $purchase->product;
-
-                $total = $qty * $product->selling_price;
-
-                SaleItem::create([
-                    'sale_id' => $sale->id,
-                    'product_id' => $product->id,
-                    'purchase_id' => $purchase->id,
-                    'quantity' => $qty,
-                    'unit_price' => $product->selling_price,
-                    'total_price' => $total
-                ]);
-
-                // Deduct lot stock
-                $purchase->decrement('remaining_quantity', $qty);
-
-                $totalAmount += $total;
-            }
-
-            if ($totalAmount <= 0) {
-                throw new \Exception("No lots selected.");
-            }
-
-            $sale->update(['total_amount' => $totalAmount]);
-
-            DB::commit();
-
-            return redirect()->route('sales.index')
-                ->with('success', 'Sale Completed Successfully');
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return redirect()->back()
-                ->with('error', $e->getMessage());
+        if ($purchase->product_id != $request->product_id) {
+            return back()->with('error', 'Invalid product selected for this lot.');
         }
+
+        if ($request->quantity > $purchase->quantity) {
+            return back()->with('error', 'Stock not available! Available stock: ' . $purchase->quantity);
+        }
+
+        $totalPrice = $request->quantity * $request->selling_price;
+
+        $product = Product::findOrFail($request->product_id);
+        $customer = Customer::findOrFail($request->customer_id);
+
+        if ($purchase->remaining_quantity < $request->quantity) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['quantity' => 'Not enough stock in the selected lot.']);
+        }
+
+
+        Sale::create([
+            'customer_id' => $customer->id,
+            'product_id' => $product->id,
+            'purchase_id' => $purchase->id,
+            'quantity' => $request->quantity,
+            'selling_price' => $request->selling_price,
+            'total_price' => $totalPrice,
+            'sale_date' => $request->sale_date,
+        ]);
+
+        // reduce lot stock
+        $purchase->quantity -= $request->quantity;
+        $purchase->save();
+
+        return redirect()->route('sales.index')
+            ->with('success', 'Sale Created Successfully');
     }
+
 
 
 
 
     public function destroy(Sale $sale)
     {
-        DB::beginTransaction();
+        DB::transaction(function () use ($sale) {
 
-        try {
+            $purchase = Purchase::find($sale->purchase_id);
 
-            // Load items with purchase relation
-            $sale->load('items.purchase');
-
-            foreach ($sale->items as $item) {
-
-                if ($item->purchase) {
-                    // Restore lot stock
-                    $item->purchase->increment('remaining_quantity', $item->quantity);
-                }
+            if ($purchase) {
+                $purchase->quantity += $sale->quantity;
+                $purchase->save();
             }
 
-            // Delete sale items first (optional but clean)
-            $sale->items()->delete();
-
-            // Delete sale
             $sale->delete();
+        });
 
-            DB::commit();
-
-            return redirect()->route('sales.index')
-                ->with('success', 'Sale Deleted & Lot Stock Restored Successfully');
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return redirect()->back()
-                ->with('error', 'Something went wrong while deleting sale.');
-        }
+        return redirect()->route('sales.index')
+            ->with('success', 'Sale deleted and stock restored successfully!');
     }
 
 

@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('category')->nullable();
-            $table->integer('units')->default(0);
+            $table->string('unit'); // kg, pcs, liter
             $table->timestamps();
         });
 

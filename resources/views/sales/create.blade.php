@@ -2,168 +2,106 @@
 
 @section('content')
 
-<h1 class="text-2xl font-bold mb-6">POS Sales (Lot Based)</h1>
+    <h1 class="text-2xl font-bold mb-6">New Sale</h1>
 
-@if(session('error'))
-    <div class="bg-red-200 p-3 mb-4 rounded">
-        {{ session('error') }}
-    </div>
-@endif
+    @if(session('error'))
+        <div class="bg-red-100 text-red-700 p-3 mb-4 rounded">
+            {{ session('error') }}
+        </div>
+    @endif
 
-<form method="POST" action="{{ route('sales.store') }}">
-    @csrf
+    <form method="POST" action="{{ route('sales.store') }}" class="bg-white p-6 rounded shadow w-1/2 space-y-4">
+        @csrf
 
-    <div class="grid grid-cols-3 gap-6">
-
-        <!-- LEFT SIDE LOTS -->
-        <div class="col-span-2 bg-white p-4 rounded shadow">
-            <h2 class="text-lg font-bold mb-4">Available Lots</h2>
-
-            <div class="grid grid-cols-3 gap-3">
-
-                @foreach($lots as $lot)
-
-                    <button type="button"
-                        onclick="addToCart(
-                            {{ $lot->id }},
-                            @json($lot->product->name . ' (Lot #' . $lot->id . ')'),
-                            {{ $lot->product->selling_price }},
-                            {{ $lot->remaining_quantity }}
-                        )"
-
-                        @if($lot->remaining_quantity <= 0)
-                            disabled
-                        @endif
-
-                        class="bg-gray-100 hover:bg-gray-200 p-3 rounded text-center border">
-
-                        <p class="font-bold">
-                            {{ $lot->product->name }}
-                        </p>
-
-                        <p>Lot #{{ $lot->id }}</p>
-
-                        <p class="text-sm text-gray-500">
-                            Stock: {{ $lot->remaining_quantity }}
-                        </p>
-                    </button>
-
+        {{-- Customer --}}
+        <div>
+            <label class="block mb-1 font-medium">Customer</label>
+            <select name="customer_id" class="w-full border rounded p-2" required>
+                <option value="">Select Customer</option>
+                @foreach($customers as $customer)
+                    <option value="{{ $customer->id }}">
+                        {{ $customer->name }}
+                    </option>
                 @endforeach
-
-            </div>
+            </select>
         </div>
 
-        <!-- RIGHT SIDE CART -->
-        <div class="bg-white p-4 rounded shadow">
-            <h2 class="text-lg font-bold mb-4">Cart</h2>
+        {{-- Product --}}
+        <div>
+            <label class="block mb-1 font-medium">Product</label>
+            <select name="product_id" class="w-full border rounded p-2" required>
+                <option value="">Select Product</option>
+                @foreach($products as $product)
+                    <option value="{{ $product->id }}">
+                        {{ $product->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
-            <table class="w-full text-sm">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Qty</th>
-                        <th>Total</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="cart-body"></tbody>
-            </table>
+        {{-- Purchase Lot --}}
+        <div>
+            <label class="block mb-1 font-medium">Purchase Lot</label>
+            <select name="purchase_id" class="w-full border rounded p-2" required>
+                <option value="">Select Purchase Lot</option>
+                @foreach($purchases as $purchase)
+                    <option value="{{ $purchase->id }}">
+                        Lot #{{ $purchase->id }}
+                        (Stock: {{ $purchase->quantity }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
-            <hr class="my-4">
+        {{-- Quantity --}}
+        <div>
+            <label class="block mb-1 font-medium">
+                Quantity
+                <span id="stockInfo" class="text-sm text-gray-500"></span>
+            </label>
 
-            <h3 class="text-lg font-bold">
-                Total: <span id="grand-total">0</span>
-            </h3>
+            <input type="number" name="quantity" id="quantityInput" class="w-full border rounded p-2" min="1" required>
+        </div>
 
-            <input type="hidden" name="date" value="{{ date('Y-m-d') }}">
+        {{-- Selling Price --}}
+        <div>
+            <label class="block mb-1 font-medium">Selling Price</label>
+            <input type="number" step="0.01" name="selling_price" class="w-full border rounded p-2" required>
+        </div>
 
-            <button class="bg-green-600 text-white w-full mt-4 py-2 rounded">
-                Complete Sale
+        {{-- Total Price --}}
+        <div>
+            <label class="block mb-1 font-medium">Total Price</label>
+            <input type="number" step="0.01" name="total_price" class="w-full border rounded p-2" required>
+        </div>
+
+        {{-- Sale Date --}}
+        <div>
+            <label class="block mb-1 font-medium">Sale Date</label>
+            <input type="date" name="sale_date" class="w-full border rounded p-2" required>
+        </div>
+
+        <div>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Save Sale
             </button>
         </div>
+    </form>
 
-    </div>
-</form>
+    <script>
+        const quantityInput = document.querySelector('input[name="quantity"]');
+        const priceInput = document.querySelector('input[name="selling_price"]');
+        const totalInput = document.querySelector('input[name="total_price"]');
 
-<script>
-
-let cart = {};
-
-function addToCart(lotId, name, price, stock) {
-
-    if (stock <= 0) {
-        alert("Stock is 0!");
-        return;
-    }
-
-    if (!cart[lotId]) {
-        cart[lotId] = { name: name, price: price, qty: 1, stock: stock };
-    } else {
-        if (cart[lotId].qty + 1 > stock) {
-            alert("Not enough stock!");
-            return;
+        function calculateTotal() {
+            const qty = parseFloat(quantityInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            totalInput.value = qty * price;
         }
-        cart[lotId].qty++;
-    }
 
-    renderCart();
-}
+        quantityInput.addEventListener('input', calculateTotal);
+        priceInput.addEventListener('input', calculateTotal);
+    </script>
 
-function removeItem(id) {
-    delete cart[id];
-    renderCart();
-}
-
-function renderCart() {
-
-    let body = document.getElementById('cart-body');
-    body.innerHTML = "";
-
-    let total = 0;
-
-    Object.keys(cart).forEach(id => {
-
-        let item = cart[id];
-        let itemTotal = item.qty * item.price;
-        total += itemTotal;
-
-        body.innerHTML += `
-            <tr>
-                <td>${item.name}</td>
-                <td>
-                    <input type="number" min="1" max="${item.stock}"
-                        value="${item.qty}"
-                        onchange="updateQty(${id}, this.value)"
-                        class="w-16 border rounded text-center">
-                </td>
-                <td>${itemTotal}</td>
-                <td>
-                    <button type="button"
-                        onclick="removeItem(${id})"
-                        class="text-red-500">X</button>
-                </td>
-            </tr>
-
-            <input type="hidden" name="lots[${id}]" value="${item.qty}">
-        `;
-    });
-
-    document.getElementById('grand-total').innerText = total;
-}
-
-function updateQty(id, qty) {
-
-    qty = parseInt(qty);
-
-    if (qty > cart[id].stock) {
-        alert("Stock exceeded!");
-        return;
-    }
-
-    cart[id].qty = qty;
-    renderCart();
-}
-
-</script>
 
 @endsection

@@ -12,7 +12,7 @@ class Product extends Model
     protected $fillable = [
         'name',
         'category',
-        'units',
+        'unit',
     ];
 
     public function purchases()

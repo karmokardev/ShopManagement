@@ -27,29 +27,63 @@
                 <tr>
                     <th class="p-3">Date</th>
                     <th class="p-3">Customer</th>
+                    <th class="p-3">Product</th>
+                    <th class="p-3">Lot</th>
+                    <th class="p-3">Qty</th>
+                    <th class="p-3">Unit Price</th>
                     <th class="p-3">Total</th>
                     <th class="p-3">Action</th>
                 </tr>
             </thead>
+
             <tbody>
                 @foreach($sales as $sale)
                     <tr class="border-t text-center">
-                        <td class="p-3">{{ $sale->date }}</td>
-                        <td class="p-3">{{ $sale->customer->name ?? 'Walk-in' }}</td>
-                        <td class="p-3">{{ $sale->total_amount }}</td>
+
+                        <td class="p-3">
+                            {{ $sale->sale_date }}
+                        </td>
+
+                        <td class="p-3">
+                            {{ $sale->customer->name ?? 'Walk-in' }}
+                        </td>
+
+                        <td class="p-3">
+                            {{ $sale->product->name ?? '-' }}
+                        </td>
+
+                        <td class="p-3">
+                            {{ $sale->purchase->lot_no ?? '-' }}
+                        </td>
+
+                        <td class="p-3">
+                            {{ $sale->quantity }}
+                        </td>
+
+                        <td class="p-3">
+                            {{ number_format($sale->selling_price, 2) }}
+                        </td>
+
+                        <td class="p-3 font-bold">
+                            {{ number_format($sale->total_price, 2) }}
+                        </td>
+
                         <td class="p-3 flex gap-2 justify-center">
-                            <form action="{{ route('sales.destroy', $sale) }}" method="POST">
+                            <form action="{{ route('sales.destroy', $sale->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
+
                                 <button onclick="return confirm('Delete sale?')"
                                     class="bg-red-500 text-white px-3 py-1 rounded">
                                     Delete
                                 </button>
                             </form>
-                            <a href="{{ route('sales.invoice', $sale) }}" class="bg-blue-500 text-white px-3 py-1 rounded">
+
+                            <a href="{{ route('sales.invoice', $sale->id) }}" class="bg-blue-500 text-white px-3 py-1 rounded">
                                 PDF
                             </a>
                         </td>
+
                     </tr>
                 @endforeach
             </tbody>

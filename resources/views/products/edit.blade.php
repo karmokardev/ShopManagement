@@ -23,10 +23,10 @@
     </div>
 
     <div class="mb-4">
-        <label>Selling Price</label>
-        <input type="number" step="0.01"
-               name="selling_price"
-               value="{{ $product->selling_price }}"
+        <label>Units</label>
+        <input type="number" step="1"
+               name="units"
+               value="{{ $product->units }}"
                class="w-full border p-2 rounded">
     </div>
 

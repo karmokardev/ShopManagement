@@ -31,21 +31,23 @@ class PurchaseController extends Controller
         $request->validate([
             'supplier_id' => 'required',
             'product_id' => 'required',
+            'lot_no' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
-            'unit_price' => 'required|numeric',
-            'date' => 'required|date'
+            'buying_price' => 'required|numeric',
+            'purchase_date' => 'required|date',
         ]);
 
-        $total = $request->quantity * $request->unit_price;
+        $total = $request->quantity * $request->buying_price;
 
         Purchase::create([
             'supplier_id' => $request->supplier_id,
             'product_id' => $request->product_id,
+            'lot_no' => $request->lot_no,
             'quantity' => $request->quantity,
-            'remaining_quantity' => $request->quantity, // lot stock
-            'unit_price' => $request->unit_price,
-            'total_cost' => $total,
-            'date' => $request->date
+            'remaining_quantity' => $request->quantity,
+            'buying_price' => $request->buying_price,
+            'total_price' => $total,
+            'purchase_date' => $request->purchase_date,
         ]);
 
         return redirect()->route('purchases.index')

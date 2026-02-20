@@ -23,10 +23,10 @@
         </div>
     @endif
 
-    <form method="GET" class="mb-4">
+    <!-- <form method="GET" class="mb-4">
         <input type="text" name="search" placeholder="Search product..." class="border p-2 rounded w-1/3"
             value="{{ request('search') }}">
-    </form>
+    </form> -->
 
     <div class="bg-white shadow rounded">
         <table class="w-full">
@@ -34,8 +34,7 @@
                 <tr>
                     <th class="p-3 text-left">Name</th>
                     <th class="p-3 text-center">Category</th>
-                    <th class="p-3 text-center">Selling Price</th>
-                    <th class="p-3 text-center">Total Stock</th>
+                    <th class="p-3 text-center">unit</th>
                     <th class="p-3 text-center">Action</th>
                 </tr>
             </thead>
@@ -49,22 +48,7 @@
                     <tr class="border-t">
                         <td class="p-3">{{ $product->name }}</td>
                         <td class="p-3 text-center">{{ $product->category }}</td>
-                        <td class="p-3 text-center">{{ $product->selling_price }}</td>
-
-                        <td class="p-3 text-center">
-                            @if($totalStock <= 0)
-                                <span class="text-red-600 font-bold">
-                                    0 (Out of Stock!)
-                                </span>
-                            @elseif($totalStock < 5)
-                                <span class="text-orange-600 font-bold">
-                                    {{ $totalStock }} (Low!)
-                                </span>
-                            @else
-                                {{ $totalStock }}
-                            @endif
-                        </td>
-
+                        <td class="p-3 text-center">{{ $product->units }}</td>
                         <td class="p-3 text-center space-x-2">
                             <a href="{{ route('products.edit', $product) }}" class="bg-yellow-400 px-3 py-1 rounded">
                                 Edit
