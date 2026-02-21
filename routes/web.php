@@ -62,10 +62,6 @@ Route::middleware('auth')->group(function () {
 
 });
 
-// AI Dashboard Route
-Route::get('/ai-dashboard', [AIController::class, 'index'])
-    ->middleware('auth')
-    ->name('ai.dashboard');
 
 //invoice route
 Route::get('/sales/{sale}/invoice', [SaleController::class, 'invoice'])
