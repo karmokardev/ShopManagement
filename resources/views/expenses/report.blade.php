@@ -2,34 +2,102 @@
 
 @section('content')
 
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-6xl mx-auto px-6 py-8">
 
-        <h1 class="text-2xl font-bold mb-6">Financial Report</h1>
+        <h1 class="text-3xl font-bold text-gray-700 mb-8">
+            Financial Report
+        </h1>
 
-        {{-- Today --}}
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <h2 class="font-semibold mb-3">Today</h2>
+        <!-- Today Section -->
+        <div class="mb-10">
 
-            <p>Sales: ৳ {{ number_format($dailySales, 2) }}</p>
-            <p>COGS: ৳ {{ number_format($dailyCOGS, 2) }}</p>
-            <p>Expenses: ৳ {{ number_format($dailyExpenses, 2) }}</p>
+            <h2 class="text-lg font-semibold text-gray-600 mb-4">
+                Today
+            </h2>
 
-            <p class="font-bold text-lg mt-2">
-                Profit: ৳ {{ number_format($dailyProfit, 2) }}
-            </p>
+            <div class="grid md:grid-cols-4 gap-6">
+
+                <!-- Sales -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                    <p class="text-sm text-gray-500">Sales</p>
+                    <h3 class="text-xl font-bold text-green-600 mt-2">
+                        ৳ {{ number_format($dailySales, 2) }}
+                    </h3>
+                </div>
+
+                <!-- COGS -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                    <p class="text-sm text-gray-500">COGS</p>
+                    <h3 class="text-xl font-bold text-orange-500 mt-2">
+                        ৳ {{ number_format($dailyCOGS, 2) }}
+                    </h3>
+                </div>
+
+                <!-- Expenses -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                    <p class="text-sm text-gray-500">Expenses</p>
+                    <h3 class="text-xl font-bold text-red-500 mt-2">
+                        ৳ {{ number_format($dailyExpenses, 2) }}
+                    </h3>
+                </div>
+
+                <!-- Profit -->
+                <div class="bg-gradient-to-r from-teal-500 to-teal-700 
+                                text-white p-6 rounded-2xl shadow-lg">
+                    <p class="text-sm opacity-80">Profit</p>
+                    <h3 class="text-2xl font-bold mt-2">
+                        ৳ {{ number_format($dailyProfit, 2) }}
+                    </h3>
+                </div>
+
+            </div>
+
         </div>
 
-        {{-- Monthly --}}
-        <div class="bg-white p-6 rounded shadow">
-            <h2 class="font-semibold mb-3">This Month</h2>
+        <!-- Monthly Section -->
+        <div>
 
-            <p>Sales: ৳ {{ number_format($monthlySales, 2) }}</p>
-            <p>COGS: ৳ {{ number_format($monthlyCOGS, 2) }}</p>
-            <p>Expenses: ৳ {{ number_format($monthlyExpenses, 2) }}</p>
+            <h2 class="text-lg font-semibold text-gray-600 mb-4">
+                This Month
+            </h2>
 
-            <p class="font-bold text-lg mt-2">
-                Profit: ৳ {{ number_format($monthlyProfit, 2) }}
-            </p>
+            <div class="grid md:grid-cols-4 gap-6">
+
+                <!-- Sales -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                    <p class="text-sm text-gray-500">Sales</p>
+                    <h3 class="text-xl font-bold text-green-600 mt-2">
+                        ৳ {{ number_format($monthlySales, 2) }}
+                    </h3>
+                </div>
+
+                <!-- COGS -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                    <p class="text-sm text-gray-500">COGS</p>
+                    <h3 class="text-xl font-bold text-orange-500 mt-2">
+                        ৳ {{ number_format($monthlyCOGS, 2) }}
+                    </h3>
+                </div>
+
+                <!-- Expenses -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                    <p class="text-sm text-gray-500">Expenses</p>
+                    <h3 class="text-xl font-bold text-red-500 mt-2">
+                        ৳ {{ number_format($monthlyExpenses, 2) }}
+                    </h3>
+                </div>
+
+                <!-- Profit -->
+                <div class="bg-gradient-to-r from-teal-500 to-teal-700 
+                                text-white p-6 rounded-2xl shadow-lg">
+                    <p class="text-sm opacity-80">Profit</p>
+                    <h3 class="text-2xl font-bold mt-2">
+                        ৳ {{ number_format($monthlyProfit, 2) }}
+                    </h3>
+                </div>
+
+            </div>
+
         </div>
 
     </div>
